@@ -60,18 +60,18 @@
 
     <!-- DONE -->
     <section id="done" class="hidden rounded-2xl border border-neutral-800 bg-black p-6 shadow">
-      <div class="mb-4 text-lg font-semibold">Summary</div>
+      <div class="mb-4 text-lg font-semibold">summary</div>
       <div class="mb-4 grid grid-cols-2 gap-2 text-sm text-neutral-300 sm:grid-cols-4">
-        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">Questions: <span id="sumQ" class="text-neutral-100">0</span></div>
-        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">Correct: <span id="sumCorrect" class="text-neutral-100">0</span></div>
-        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">Accuracy: <span id="sumAcc" class="text-neutral-100">0%</span></div>
-        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">Time Used: <span id="sumTime" class="text-neutral-100">0:00</span></div>
+        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">questions: <span id="sumQ" class="text-neutral-100">0</span></div>
+        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">correct: <span id="sumCorrect" class="text-neutral-100">0</span></div>
+        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">accuracy: <span id="sumAcc" class="text-neutral-100">0%</span></div>
+        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">time Used: <span id="sumTime" class="text-neutral-100">0:00</span></div>
       </div>
-      <div class="mb-3 text-sm text-neutral-300">Mistakes with hints</div>
+      <div class="mb-3 text-sm text-neutral-300">mistakes with hints</div>
       <ul id="mistakeList" class="space-y-2"></ul>
       <div class="mt-5 flex items-center justify-end gap-3">
-        <button id="settingsBtn" class="h-10 rounded-xl border border-neutral-800 bg-neutral-900 px-5 text-sm text-neutral-100 transition hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-300">Change settings</button>
-        <button id="replayBtn" class="h-10 rounded-xl border border-neutral-800 bg-neutral-900 px-5 text-sm text-neutral-100 transition hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-300">Replay</button>
+        <button id="settingsBtn" class="h-10 rounded-xl border border-neutral-800 bg-neutral-900 px-5 text-sm text-neutral-100 transition hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-300">change settings</button>
+        <button id="replayBtn" class="h-10 rounded-xl border border-neutral-800 bg-neutral-900 px-5 text-sm text-neutral-100 transition hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-300">replay</button>
       </div>
     </section>
   </div>
@@ -84,9 +84,9 @@
     const parseNum = (s) => Number(String(s).replace(/[\,\s_]/g, ''));
 
     const LEVELS = {
-      basic: { label: 'Basic', addSubDigits: 2, mulDivDigits: 1 },
-      medium: { label: 'Medium', addSubDigits: 3, mulDivDigits: 2 },
-      advanced: { label: 'Advanced', addSubDigits: 4, mulDivDigits: 3 },
+      basic: { label: 'basic', addSubDigits: 2, mulDivDigits: 1 },
+      medium: { label: 'medium', addSubDigits: 3, mulDivDigits: 2 },
+      advanced: { label: 'advanced', addSubDigits: 4, mulDivDigits: 3 },
     };
 
     // generators: explicit per operator for 25% each
@@ -118,10 +118,10 @@
 
     function hintFor(kind) {
       switch (kind) {
-        case '+': return 'Line up digits. Add column-wise. Carry when a column ≥ 10.';
-        case '-': return 'Line up digits. Borrow from the next column if needed. Keep result non-negative.';
-        case '*': return 'Use place value. Multiply per digit. Add partial products. Track carries.';
-        case '/': return 'Use long division. These divide exactly. Bring down digits each step.';
+        case '+': return 'Line up digits. add column-wise. carry when a column ≥ 10.';
+        case '-': return 'Line up digits. borrow from the next column if needed. keep result non-negative.';
+        case '*': return 'Use place value. multiply per digit. add partial products. track carries.';
+        case '/': return 'Use long division. these divide exactly. bring down digits each step.';
       }
     }
 
