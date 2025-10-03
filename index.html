@@ -65,7 +65,7 @@
         <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">questions: <span id="sumQ" class="text-neutral-100">0</span></div>
         <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">correct: <span id="sumCorrect" class="text-neutral-100">0</span></div>
         <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">accuracy: <span id="sumAcc" class="text-neutral-100">0%</span></div>
-        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">time Used: <span id="sumTime" class="text-neutral-100">0:00</span></div>
+        <div class="rounded-lg bg-neutral-900 p-3 ring-1 ring-neutral-800">time used: <span id="sumTime" class="text-neutral-100">0:00</span></div>
       </div>
       <div class="mb-3 text-sm text-neutral-300">mistakes with hints</div>
       <ul id="mistakeList" class="space-y-2"></ul>
@@ -118,10 +118,10 @@
 
     function hintFor(kind) {
       switch (kind) {
-        case '+': return 'Line up digits. add column-wise. carry when a column ≥ 10.';
-        case '-': return 'Line up digits. borrow from the next column if needed. keep result non-negative.';
-        case '*': return 'Use place value. multiply per digit. add partial products. track carries.';
-        case '/': return 'Use long division. these divide exactly. bring down digits each step.';
+        case '+': return 'line up digits. add column-wise. carry when a column ≥ 10.';
+        case '-': return 'line up digits. borrow from the next column if needed. keep result non-negative.';
+        case '*': return 'use place value. multiply per digit. add partial products. track carries.';
+        case '/': return 'use long division. these divide exactly. bring down digits each step.';
       }
     }
 
@@ -189,7 +189,7 @@
       else p = buildDiv(spec.mulDivDigits);
       state.problem = p;
       meta.textContent =
-        p.kind === '+' || p.kind === '-' ? `Add/Sub up to ${spec.addSubDigits} digits` : `${spec.mulDivDigits}-digit ${p.kind === '*' ? '×' : '÷'}${p.kind === '/' ? ' (clean)' : ''}`;
+        p.kind === '+' || p.kind === '-' ? `add/sub up to ${spec.addSubDigits} digits` : `${spec.mulDivDigits}-digit ${p.kind === '*' ? '×' : '÷'}${p.kind === '/' ? ' (clean)' : ''}`;
       question.textContent = p.q;
       answerInput.value = '';
       answerInput.focus();
@@ -217,7 +217,7 @@
       if (state.mistakes.length === 0) {
         const li = document.createElement('li');
         li.className = 'text-sm text-neutral-400';
-        li.textContent = 'No mistakes.';
+        li.textContent = 'no mistakes.';
         list.appendChild(li);
       } else {
         state.mistakes.forEach((m) => {
