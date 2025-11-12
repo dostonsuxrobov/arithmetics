@@ -260,64 +260,149 @@
     const clock = s => Math.floor(s/60)+":"+String(s%60).padStart(2,'0');
 
     // ---------- persistence ----------
-    const LS_KEY = 'arith_profile_v4';
+    const LS_KEY = 'arith_profile_v5';
     const defaultProfile = () => ({
       lifetime:{answered:0,correct:0,bestStreak:0,sessions:0,totalTime:0},
-      level:1.0,
+      // Per-operation levels and rolling performance
+      opLevels:{'+':{level:1.0,rolling:[]},'-':{level:1.0,rolling:[]},
+                '*':{level:1.0,rolling:[]},'/':{level:1.0,rolling:[]}},
       skills:{'+':{ans:0,cor:0},'-':{ans:0,cor:0},'*':{ans:0,cor:0},'/':{ans:0,cor:0}},
       mistakeBank:[],
       history:[],
-      milestones:{} // track reached milestones
+      milestones:{}
     });
     function loadProfile(){
-      try{const raw=localStorage.getItem(LS_KEY);return raw?JSON.parse(raw):defaultProfile()}catch{ return defaultProfile() }
+      try{
+        const raw=localStorage.getItem(LS_KEY);
+        if(raw){
+          const p = JSON.parse(raw);
+          // Migrate from v4 if needed
+          if(!p.opLevels){
+            p.opLevels = {'+':{level:p.level||1.0,rolling:[]},'-':{level:p.level||1.0,rolling:[]},
+                          '*':{level:p.level||1.0,rolling:[]},'/':{level:p.level||1.0,rolling:[]}};
+          }
+          return p;
+        }
+      }catch{ return defaultProfile() }
+      return defaultProfile();
     }
     function saveProfile(p){ localStorage.setItem(LS_KEY,JSON.stringify(p)) }
 
     // ---------- difficulty mapping ----------
+    // Much more gradual progression
     function levelToDigits(level){
       const L = clamp(level,1,10);
-      const addSub = clamp(Math.round(0.7*L+0.3),1,6);
-      const mulDiv = clamp(Math.round(0.5*L+0.5),1,5);
-      return {addSubDigits:addSub,mulDivDigits:mulDiv}
+      // For addition/subtraction: starts at 1 digit, grows slowly
+      // Level 1.0 = 1 digit (0-9)
+      // Level 2.0 = 1-2 digits (0-99) 
+      // Level 4.0 = 2 digits (10-99)
+      // Level 6.0 = 3 digits (100-999)
+      // Level 8.0 = 4 digits
+      // Level 10.0 = 5-6 digits
+      const addSubDigits = L < 2 ? 1 : 
+                           L < 3 ? 2 :
+                           L < 5 ? 2 :
+                           L < 7 ? 3 :
+                           L < 9 ? 4 : 
+                           Math.min(6, Math.floor(L));
+      
+      // For multiply/divide: even more gradual
+      // Level 1.0 = single digit × single digit (2-9 × 2-9)
+      // Level 2.0-3.0 = still single digit but full range
+      // Level 4.0 = 1 digit × 2 digit
+      // Level 6.0 = 2 digit × 2 digit
+      // Level 8.0 = 2 digit × 3 digit or 3 × 2
+      // Level 10.0 = 3 × 3
+      const mulDivDigits = L < 4 ? 1 :
+                           L < 6 ? 1.5 : // will handle specially
+                           L < 8 ? 2 :
+                           L < 9 ? 2.5 :
+                           3;
+      
+      return {addSubDigits,mulDivDigits};
     }
 
     function getLevelDescription(level){
-      if(level < 2) return 'Beginner - Basic operations';
-      if(level < 3) return 'Learning - Single digit mastery';
-      if(level < 4) return 'Novice - Two digit numbers';
-      if(level < 5) return 'Developing - Mixed operations';
-      if(level < 6) return 'Intermediate - Larger numbers';
-      if(level < 7) return 'Proficient - Complex problems';
-      if(level < 8) return 'Advanced - Multi-digit mastery';
-      if(level < 9) return 'Expert - Challenging operations';
-      if(level < 10) return 'Elite - Near mastery';
+      if(level < 1.5) return 'Beginner - Single digits';
+      if(level < 2.5) return 'Learning - Small numbers';
+      if(level < 3.5) return 'Novice - Building skills';
+      if(level < 4.5) return 'Developing - Two digits';
+      if(level < 5.5) return 'Intermediate - Growing';
+      if(level < 6.5) return 'Proficient - Larger numbers';
+      if(level < 7.5) return 'Advanced - Multi-digit';
+      if(level < 8.5) return 'Expert - Complex problems';
+      if(level < 9.5) return 'Elite - Near mastery';
       return 'Master - Maximum difficulty';
     }
 
     // ---------- problem builders ----------
     function buildAdd(maxDigits){
-      const upTo = pow10(maxDigits)-1;
+      const digits = Math.floor(maxDigits);
+      const upTo = pow10(digits)-1;
       const a=rnd(0,upTo), b=rnd(0,upTo);
       return {q:`${fmt(a)} + ${fmt(b)}`, a:a+b, kind:'+'};
     }
     function buildSub(maxDigits){
-      const upTo = pow10(maxDigits)-1;
+      const digits = Math.floor(maxDigits);
+      const upTo = pow10(digits)-1;
       let a=rnd(0,upTo), b=rnd(0,upTo);
       if(a<b) [a,b]=[b,a];
       return {q:`${fmt(a)} − ${fmt(b)}`, a:a-b, kind:'-'};
     }
     function buildMul(digits){
-      const low=digits===1?2:pow10(digits-1), high=pow10(digits)-1;
-      const x=rnd(low,high), y=rnd(low,high);
-      return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
+      // Handle fractional digits
+      if(digits < 2){
+        // Level 1.0-3.9: single digit × single digit
+        const x=rnd(2,9), y=rnd(2,9);
+        return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
+      } else if(digits < 2.5){
+        // Level 4.0-5.9: 1 digit × 2 digit or 2 × 1
+        const big=rnd(10,99), small=rnd(2,9);
+        const x = Math.random()<0.5 ? big : small;
+        const y = x===big ? small : big;
+        return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
+      } else if(digits < 3){
+        // Level 6.0-7.9: 2 digit × 2 digit (smaller range)
+        const x=rnd(10,50), y=rnd(10,50);
+        return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
+      } else {
+        // Level 8.0+: full 2 digit or start 3 digit
+        const d = Math.floor(digits);
+        const low=pow10(d-1), high=pow10(d)-1;
+        const x=rnd(low,high), y=rnd(low,high);
+        return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
+      }
     }
     function buildDiv(digits){
-      const low=digits===1?2:pow10(digits-1), high=pow10(digits)-1;
-      const x=rnd(low,high), y=rnd(low,high);
-      const byX = Math.random()<0.5;
-      const dividend=x*y;
-      return byX?{q:`${fmt(dividend)} ÷ ${fmt(x)}`, a:y, kind:'/'}:{q:`${fmt(dividend)} ÷ ${fmt(y)}`, a:x, kind:'/'};
+      // Similar gradual progression for division
+      if(digits < 2){
+        // Level 1.0-3.9: simple single digit division
+        const divisor=rnd(2,9);
+        const answer=rnd(2,9);
+        const dividend=divisor*answer;
+        return {q:`${fmt(dividend)} ÷ ${fmt(divisor)}`, a:answer, kind:'/'};
+      } else if(digits < 2.5){
+        // Level 4.0-5.9: 2 digit ÷ 1 digit
+        const divisor=rnd(2,9);
+        const answer=rnd(2,15);
+        const dividend=divisor*answer;
+        return {q:`${fmt(dividend)} ÷ ${fmt(divisor)}`, a:answer, kind:'/'};
+      } else if(digits < 3){
+        // Level 6.0-7.9: larger dividends
+        const divisor=rnd(5,20);
+        const answer=rnd(5,20);
+        const dividend=divisor*answer;
+        return {q:`${fmt(dividend)} ÷ ${fmt(divisor)}`, a:answer, kind:'/'};
+      } else {
+        // Level 8.0+: full range
+        const d = Math.floor(digits);
+        const low=d===1?2:pow10(d-1), high=pow10(d)-1;
+        const x=rnd(low,high), y=rnd(low,high);
+        const byX = Math.random()<0.5;
+        const dividend=x*y;
+        return byX?{q:`${fmt(dividend)} ÷ ${fmt(x)}`, a:y, kind:'/'}
+                  :{q:`${fmt(dividend)} ÷ ${fmt(y)}`, a:x, kind:'/'};
+      }
     }
     function hintFor(k){
       switch(k){
@@ -332,14 +417,11 @@
     const el = id=>document.getElementById(id);
     const state = {
       mode:'adaptive',
-      level:1.0,
       qTarget:20,
       durationSec:120,
       idx:0, tries:0, correct:0, streak:0, best:0,
       timeLeft:0, timer:null, problem:null, lastStart:0,
       opsSet:new Set(['+','-','*','/']),
-      rolling:[],
-      N:10,
       isPaused:false,
       sessionStart:0
     };
@@ -348,11 +430,17 @@
     const stateMistakes=[];
 
     // ---------- UI updates ----------
+    function getAverageLevel(){
+      const ops = Object.keys(profile.opLevels);
+      const sum = ops.reduce((acc, op) => acc + profile.opLevels[op].level, 0);
+      return sum / ops.length;
+    }
+    
     function updateProgressViz(){
-      const lvl = profile.level || 1.0;
-      el('levelDisplay').textContent = lvl.toFixed(1);
-      el('levelDesc').textContent = getLevelDescription(lvl);
-      const percent = ((lvl - 1) / 9) * 100; // 1-10 scale
+      const avgLevel = getAverageLevel();
+      el('levelDisplay').textContent = avgLevel.toFixed(1);
+      el('levelDesc').textContent = getLevelDescription(avgLevel);
+      const percent = ((avgLevel - 1) / 9) * 100; // 1-10 scale
       el('progressFill').style.width = Math.min(100, Math.max(0, percent)) + '%';
     }
 
@@ -364,13 +452,17 @@
       
       ops.forEach(op => {
         const skill = profile.skills[op];
+        const opLevel = profile.opLevels[op].level;
         const acc = skill.ans > 0 ? Math.round((skill.cor / skill.ans) * 100) : 0;
         const row = document.createElement('div');
         row.className = 'skill-row';
         row.innerHTML = `
           <div class="skill-op">${op}</div>
           <div style="flex:1">
-            <div style="font-size:.875rem;margin-bottom:.25rem">${labels[op]}</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:.25rem">
+              <span style="font-size:.875rem">${labels[op]}</span>
+              <span style="font-size:.75rem;color:#a3a3a3">Lvl ${opLevel.toFixed(1)}</span>
+            </div>
             <div class="skill-bar"><div class="skill-bar-fill" style="width:${acc}%"></div></div>
           </div>
           <div class="skill-stat">${skill.cor}/${skill.ans} (${acc}%)</div>
@@ -419,17 +511,17 @@
     }
 
     // ---------- milestone celebrations ----------
-    function checkMilestones(newLevel){
-      const milestones = [2, 3, 4, 5, 6, 7, 8, 9, 10];
-      const oldLevel = Math.floor(profile.level || 1);
-      const reached = Math.floor(newLevel);
+    function checkMilestones(){
+      const avgLevel = getAverageLevel();
+      const milestones = [1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10];
       
-      if(reached > oldLevel && milestones.includes(reached)){
-        if(!profile.milestones[reached]){
-          profile.milestones[reached] = true;
-          showMilestone(reached);
+      milestones.forEach(m => {
+        const key = 'lvl_' + m;
+        if(avgLevel >= m && !profile.milestones[key]){
+          profile.milestones[key] = true;
+          showMilestone(m);
         }
-      }
+      });
     }
 
     function showMilestone(level){
@@ -439,13 +531,15 @@
       const milestone = document.createElement('div');
       milestone.className = 'milestone';
       
-      const emojis = {2:'🌟',3:'⚡',4:'🔥',5:'🎯',6:'💪',7:'🚀',8:'👑',9:'💎',10:'🏆'};
-      const titles = {2:'Rising Star!',3:'Getting Better!',4:'Solid Progress!',5:'Halfway There!',6:'Strong Skills!',7:'Advanced Level!',8:'Expert Status!',9:'Nearly Perfect!',10:'MASTER ACHIEVED!'};
+      const emojis = {1.5:'⭐',2:'🌟',3:'⚡',4:'🔥',5:'🎯',6:'💪',7:'🚀',8:'👑',9:'💎',10:'🏆'};
+      const titles = {1.5:'Getting Started!',2:'Rising Star!',3:'Getting Better!',4:'Solid Progress!',
+                      5:'Halfway There!',6:'Strong Skills!',7:'Advanced Level!',8:'Expert Status!',
+                      9:'Nearly Perfect!',10:'MASTER ACHIEVED!'};
       
       milestone.innerHTML = `
         <div class="milestone-emoji">${emojis[level] || '⭐'}</div>
         <div class="milestone-title">${titles[level] || 'Level Up!'}</div>
-        <div class="muted">You've reached Level ${level}.0!</div>
+        <div class="muted">You've reached Level ${level}!</div>
         <button class="btn primary" style="margin-top:1rem" onclick="this.parentElement.parentElement.remove();this.parentElement.remove()">Continue</button>
       `;
       
@@ -531,11 +625,11 @@
     el('qTarget').addEventListener('change',e=>state.qTarget=clamp(Number(e.target.value)||20,5,200));
     el('manualLevel').addEventListener('input',e=>{
       const val = Number(e.target.value);
-      state.level = val;
+      state.manualLevel = val;
       el('manualDisplay').textContent = val.toFixed(1);
     });
 
-    // ---------- export / reset / history ----------
+    // export / reset / history
     el('exportBtn').addEventListener('click',()=>{
       const blob=new Blob([JSON.stringify(profile,null,2)],{type:'application/json'});
       const a=document.createElement('a'); 
@@ -622,11 +716,10 @@
         return;
       }
 
-      state.level = state.mode==='manual'? Number(el('manualLevel').value) : profile.level||1.0;
       state.qTarget = clamp(Number(el('qTarget').value)||20,5,200);
       state.durationSec = clamp(Number(el('durationSec').value)||120,30,3600);
       state.idx=0; state.tries=0; state.correct=0; state.streak=0; state.best=0; 
-      state.rolling=[]; stateMistakes.length = 0;
+      stateMistakes.length = 0;
       state.timeLeft = state.durationSec;
       state.sessionStart = Date.now();
       state.isPaused = false;
@@ -674,6 +767,9 @@
       profile.lifetime.sessions += 1;
       profile.lifetime.bestStreak = Math.max(profile.lifetime.bestStreak||0, state.best);
 
+      // Get average level for history
+      const avgLevel = getAverageLevel();
+
       // Add to history
       profile.history.unshift({
         dateISO:new Date().toISOString(),
@@ -682,19 +778,11 @@
         accuracy:accPct,
         best:state.best,
         timeSec:elapsed,
-        level: Number((state.mode==='manual'? state.level : (profile.level||state.level)).toFixed(1))
+        level: Number(avgLevel.toFixed(1))
       });
 
-      // Adaptive level adjustment
-      if(state.mode==='adaptive'){
-        const acc = state.tries? state.correct/state.tries : 0;
-        const target=0.85;
-        const delta = clamp((acc-target)*1.5, -0.5, 0.5);
-        const oldLevel = profile.level || 1;
-        profile.level = clamp(oldLevel + delta, 1, 10);
-        checkMilestones(profile.level);
-      }
-
+      // Note: Level adjustments happen per-question now, not at end of session
+      
       saveProfile(profile);
       refreshLifetime();
 
@@ -747,15 +835,16 @@
     }
 
     function nextProblem(){
-      const L = state.mode==='manual'? state.level : (profile.level||state.level);
-      const {addSubDigits,mulDivDigits} = levelToDigits(L);
-      
       let p;
       if(state.mode==='review' && profile.mistakeBank.length>0){
         const m = profile.mistakeBank[rnd(0,profile.mistakeBank.length-1)];
         p = {q:m.q, a:m.a, kind:m.kind, fromBank:true};
       } else {
         const op = pickOp();
+        // Use the specific operation's level for difficulty
+        const opLevel = state.mode==='manual' ? (state.manualLevel || 1.0) : profile.opLevels[op].level;
+        const {addSubDigits,mulDivDigits} = levelToDigits(opLevel);
+        
         if(op==='+') p=buildAdd(addSubDigits);
         else if(op==='-') p=buildSub(addSubDigits);
         else if(op==='*') p=buildMul(mulDivDigits);
@@ -766,9 +855,11 @@
       state.lastStart = performance.now();
 
       const op = p.kind;
+      const opLevel = state.mode==='manual' ? (state.manualLevel || 1.0) : profile.opLevels[op].level;
+      const {addSubDigits,mulDivDigits} = levelToDigits(opLevel);
       const meta = op==='+'||op==='-' 
-        ? `Add/Subtract up to ${addSubDigits} digits` 
-        : `${mulDivDigits}-digit ${op==='*'?'Multiply':'Divide'}${op==='/'?' (even division)':''}`;
+        ? `${op==='+'?'Addition':'Subtraction'} (Lvl ${opLevel.toFixed(1)}) - up to ${addSubDigits} digits` 
+        : `${op==='*'?'Multiplication':'Division'} (Lvl ${opLevel.toFixed(1)})${op==='/'?' - even division':''}`;
       el('meta').textContent = meta;
       el('question').textContent = p.q;
       el('answerInput').value='';
@@ -802,30 +893,50 @@
       }
     }
 
-    function adjustLevel(ok, ms){
+    function adjustLevel(ok, ms, op){
       if(state.mode!=='adaptive') return;
       
-      state.rolling.push({ok,ms}); 
-      if(state.rolling.length>state.N) state.rolling.shift();
+      const opData = profile.opLevels[op];
       
-      const n=state.rolling.length; 
-      if(n<state.N) return;
+      // Add to rolling window for this operation (last 8 questions)
+      opData.rolling.push({ok, ms});
+      if(opData.rolling.length > 8) opData.rolling.shift();
       
-      const acc = state.rolling.filter(r=>r.ok).length / n;
-      const avgMs = state.rolling.reduce((a,r)=>a+r.ms,0)/n;
-      const {addSubDigits,mulDivDigits} = levelToDigits(profile.level||1);
-      const estDigits = (addSubDigits+mulDivDigits)/2;
-      const targetMs = 2500 + 400*estDigits;
+      const n = opData.rolling.length;
+      if(n < 5) return; // Need at least 5 questions before adjusting
+      
+      const recentAcc = opData.rolling.filter(r=>r.ok).length / n;
+      const avgMs = opData.rolling.reduce((a,r)=>a+r.ms,0) / n;
+      
+      // Estimate target time based on current level
+      const {addSubDigits,mulDivDigits} = levelToDigits(opData.level);
+      const estDigits = (op==='+'||op==='-') ? addSubDigits : mulDivDigits;
+      const targetMs = 1500 + 600 * estDigits; // More time for higher levels
       
       let delta = 0;
-      if(acc>=0.85 && avgMs<=targetMs) delta = +0.2;
-      else if(acc<0.6 || avgMs>targetMs*1.4) delta = -0.2;
       
-      if(delta!==0){ 
-        const oldLevel = profile.level || 1;
-        profile.level = clamp(oldLevel + delta, 1, 10);
-        checkMilestones(profile.level);
+      // STRICT requirements for leveling up
+      if(recentAcc >= 0.90 && avgMs <= targetMs * 0.9){
+        // Excellent: fast AND very accurate
+        delta = 0.15;
+      } else if(recentAcc >= 0.875 && avgMs <= targetMs){
+        // Good: decent speed and high accuracy
+        delta = 0.10;
+      } else if(recentAcc >= 0.85 && avgMs <= targetMs * 1.1){
+        // Acceptable: slightly slower but still accurate
+        delta = 0.05;
+      } else if(recentAcc < 0.65 || avgMs > targetMs * 1.8){
+        // Struggling: too slow OR too many mistakes
+        delta = -0.10;
+      } else if(recentAcc < 0.75){
+        // Below target accuracy
+        delta = -0.05;
+      }
+      
+      if(delta !== 0){
+        opData.level = clamp(opData.level + delta, 1.0, 10.0);
         saveProfile(profile);
+        checkMilestones();
       }
     }
 
@@ -893,7 +1004,8 @@
         profile.mistakeBank = profile.mistakeBank.filter(m=>!(m.q===p.q && m.a===p.a));
       }
 
-      adjustLevel(ok, ms);
+      // Adjust level for THIS specific operation
+      adjustLevel(ok, ms, p.kind);
       saveProfile(profile);
       updateBars();
 
@@ -921,10 +1033,10 @@
     });
 
     // ---------- initialize ----------
-    if(profile.level) { 
-      el('manualLevel').value = profile.level; 
-      el('manualDisplay').textContent = profile.level.toFixed(1);
-    }
+    const avgLevel = getAverageLevel();
+    el('manualLevel').value = avgLevel;
+    state.manualLevel = avgLevel;
+    el('manualDisplay').textContent = avgLevel.toFixed(1);
     refreshLifetime();
   </script>
 </body>
