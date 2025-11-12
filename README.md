@@ -1,2 +1,2 @@
 # arithmetics
-basic arithmetics training 
+basic arithmetics training gamified
