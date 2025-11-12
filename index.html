@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arithmetic Trainer</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:#0a0a0a;color:#fafafa;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+    .container{max-width:56rem;margin:0 auto;padding:1rem}
+    @media(min-width:640px){.container{padding:1.5rem}}
+    header{margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+    h1{font-size:1.125rem;font-weight:600;letter-spacing:-.025em}
+    .pill{background:#171717;border:1px solid #262626;border-radius:9999px;padding:.25rem .75rem;color:#a3a3a3;font-size:.75rem;white-space:nowrap}
+    .pill span{color:#e5e5e5}
+    section{background:#000;border:1px solid #262626;border-radius:1rem;padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,.3);margin-top:1rem}
+    .row{display:flex;gap:.75rem;flex-wrap:wrap}
+    .grid{display:grid;gap:.75rem}
+    @media(min-width:640px){.grid.cols-2{grid-template-columns:repeat(2,1fr)}.grid.cols-3{grid-template-columns:repeat(3,1fr)}.grid.cols-4{grid-template-columns:repeat(4,1fr)}}
+    .btn{height:2.5rem;border-radius:.75rem;border:1px solid #262626;background:#171717;color:#fafafa;padding:0 1rem;font-size:.875rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .btn:hover{background:#262626}
+    .btn:focus{outline:none;box-shadow:0 0 0 2px #404040}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn.primary{background:#fafafa;color:#171717;border-color:#e5e5e5}
+    .btn.ghost{background:transparent}
+    .seg{display:flex;border:1px solid #262626;border-radius:.75rem;overflow:hidden}
+    .seg button{border:0;height:2.5rem;padding:0 .75rem;background:#171717;color:#e5e5e5;font-size:.875rem;cursor:pointer;transition:all .2s;flex:1}
+    .seg button.active{background:#fafafa;color:#171717}
+    .seg button:hover:not(.active){background:#262626}
+    label{font-size:.875rem;color:#d4d4d4;display:flex;align-items:center;gap:.5rem;cursor:pointer}
+    input[type="number"],input[type="text"],input[type="range"],input[type="checkbox"]{accent-color:#fafafa}
+    input[type="number"],input[type="text"]{height:2.5rem;border-radius:.5rem;border:1px solid #262626;background:#171717;color:#fafafa;padding:0 .75rem;font-size:.875rem;width:100%}
+    input[type="number"]:focus,input[type="text"]:focus{outline:none;box-shadow:0 0 0 2px #404040}
+    .muted{font-size:.75rem;color:#a3a3a3}
+    .title{font-size:.875rem;color:#d4d4d4;margin-bottom:.5rem;font-weight:500}
+    .statgrid{display:grid;gap:.5rem;grid-template-columns:repeat(2,1fr)}
+    @media(min-width:640px){.statgrid{grid-template-columns:repeat(4,1fr)}}
+    .card{background:#171717;border:1px solid #262626;border-radius:.75rem;padding:.75rem;font-size:.875rem;color:#d4d4d4}
+    .card span{color:#fafafa;font-weight:500}
+    #question{font-size:2rem;font-weight:600;letter-spacing:-.025em;margin:.75rem 0;word-wrap:break-word;text-align:center}
+    @media(min-width:640px){#question{font-size:2.5rem}}
+    #answerForm{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
+    #answerInput{height:3rem;flex:1;max-width:20rem;border-radius:.75rem;border:1px solid #262626;background:#0a0a0a;color:#fafafa;padding:0 1rem;font-size:1.125rem;text-align:center}
+    #answerInput:focus{outline:none;box-shadow:0 0 0 2px #404040}
+    #feedback{margin-top:.75rem;font-size:.875rem;font-weight:500;text-align:center;min-height:1.5rem}
+    .ok{color:#22c55e}.err{color:#ef4444}
+    .hidden{display:none}
+    ul{list-style:none}
+    li.mist{background:#171717;border:1px solid #262626;border-radius:.75rem;padding:.75rem;margin:.5rem 0;font-size:.875rem}
+    li.mist > div{margin:.25rem 0}
+    .history{max-height:20rem;overflow:auto;border:1px solid #262626;border-radius:.75rem;background:#000}
+    .hist-row{display:grid;grid-template-columns:1fr;gap:.5rem;padding:.75rem;border-bottom:1px solid #1f1f1f;font-size:.75rem}
+    @media(min-width:768px){.hist-row{grid-template-columns:10rem 4rem 4rem 4rem 5rem 5rem 4rem;font-size:.875rem}}
+    .hist-head{position:sticky;top:0;background:#0a0a0a;font-weight:600;border-bottom:2px solid #262626}
+    .hist-mobile-label{display:inline;color:#737373;margin-right:.5rem}
+    @media(min-width:768px){.hist-mobile-label{display:none}}
+    
+    /* Progress visualization */
+    .progress-viz{margin:.75rem 0;padding:1rem;background:#171717;border:1px solid #262626;border-radius:.75rem}
+    .progress-track{height:1.5rem;background:#0a0a0a;border-radius:.75rem;position:relative;overflow:hidden;border:1px solid #262626}
+    .progress-fill{height:100%;background:linear-gradient(90deg, #22c55e 0%, #3b82f6 50%, #8b5cf6 100%);transition:width .3s ease;position:relative}
+    .progress-markers{display:flex;justify-content:space-between;margin-top:.5rem;font-size:.75rem;color:#737373}
+    .level-display{text-align:center;font-size:1.5rem;font-weight:700;color:#fafafa;margin-bottom:.5rem}
+    .level-desc{text-align:center;font-size:.875rem;color:#a3a3a3}
+    
+    /* Milestone celebration */
+    .milestone{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#171717;border:2px solid #fafafa;border-radius:1rem;padding:2rem;text-align:center;z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,.8);animation:pop .3s ease}
+    @keyframes pop{0%{transform:translate(-50%,-50%) scale(.8);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+    .milestone-title{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
+    .milestone-emoji{font-size:3rem;margin:.5rem 0}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999}
+    
+    /* Empty states */
+    .empty-state{text-align:center;padding:2rem;color:#737373}
+    .empty-state-icon{font-size:3rem;margin-bottom:1rem;opacity:.5}
+    
+    /* Pause overlay */
+    .pause-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:100;display:flex;align-items:center;justify-content:center}
+    .pause-box{background:#171717;border:1px solid #262626;border-radius:1rem;padding:2rem;text-align:center}
+    .pause-title{font-size:1.5rem;font-weight:600;margin-bottom:1rem}
+    
+    /* Skill bars */
+    .skill-grid{display:grid;gap:.5rem;margin-top:.75rem}
+    .skill-row{display:flex;align-items:center;gap:.75rem;background:#171717;border:1px solid #262626;border-radius:.5rem;padding:.5rem .75rem}
+    .skill-op{font-size:1rem;font-weight:600;width:1.5rem;text-align:center}
+    .skill-bar{flex:1;height:.5rem;background:#0a0a0a;border-radius:.25rem;overflow:hidden}
+    .skill-bar-fill{height:100%;background:#22c55e;transition:width .3s}
+    .skill-stat{font-size:.75rem;color:#a3a3a3;min-width:4rem;text-align:right}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Arithmetic Trainer</h1>
+      <div class="row">
+        <div class="pill">q: <span id="qIdx">0/0</span></div>
+        <div class="pill">time: <span id="clock">0:00</span></div>
+        <div class="pill">acc: <span id="acc">0%</span></div>
+        <div class="pill">streak: <span id="streak">0</span></div>
+      </div>
+    </header>
+
+    <!-- SETUP -->
+    <section id="setup">
+      <!-- Progress Visualization -->
+      <div class="progress-viz">
+        <div class="level-display">Level <span id="levelDisplay">1.0</span></div>
+        <div class="level-desc" id="levelDesc">Beginner - Basic operations</div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:10%"></div>
+        </div>
+        <div class="progress-markers">
+          <span>1.0<br><small>Start</small></span>
+          <span>3.0<br><small>Novice</small></span>
+          <span>5.0<br><small>Intermediate</small></span>
+          <span>7.0<br><small>Advanced</small></span>
+          <span>10.0<br><small>Master</small></span>
+        </div>
+      </div>
+
+      <div class="grid cols-3">
+        <div>
+          <div class="title">Mode</div>
+          <div class="seg" id="modeSeg">
+            <button data-mode="adaptive" class="active">Adaptive</button>
+            <button data-mode="manual">Manual</button>
+            <button data-mode="review">Review</button>
+          </div>
+          <p class="muted" id="modeHelp">Adapts difficulty from your accuracy and speed</p>
+        </div>
+        <div>
+          <div class="title">Duration (sec)</div>
+          <input id="durationSec" type="number" min="30" max="3600" step="10" value="120" />
+          <p class="muted">Session length</p>
+        </div>
+        <div>
+          <div class="title">Questions</div>
+          <input id="qTarget" type="number" min="5" max="200" step="1" value="20" />
+          <p class="muted">Or until time runs out</p>
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:.75rem">
+        <div id="manualBlock" class="hidden">
+          <div class="title">Manual Difficulty</div>
+          <input id="manualLevel" type="range" min="1" max="10" step="0.1" value="1" style="width:100%">
+          <div style="display:flex;justify-content:space-between;margin-top:.25rem">
+            <span class="muted">1.0 Easy</span>
+            <span class="muted" id="manualDisplay">1.0</span>
+            <span class="muted">10.0 Hard</span>
+          </div>
+        </div>
+        <div>
+          <div class="title">Operations to Practice</div>
+          <div class="row">
+            <label><input type="checkbox" class="opChk" data-op="+" checked> Addition (+)</label>
+            <label><input type="checkbox" class="opChk" data-op="-" checked> Subtract (−)</label>
+          </div>
+          <div class="row" style="margin-top:.25rem">
+            <label><input type="checkbox" class="opChk" data-op="*" checked> Multiply (×)</label>
+            <label><input type="checkbox" class="opChk" data-op="/" checked> Divide (÷)</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content:flex-end;margin-top:.75rem">
+        <button class="btn" id="exportBtn">Export Progress</button>
+        <button class="btn" id="resetBtn">Reset Progress</button>
+        <button class="btn primary" id="startBtn">Start Session</button>
+      </div>
+
+      <!-- Skill Breakdown -->
+      <section>
+        <div class="title">Operation Skills</div>
+        <div class="skill-grid" id="skillGrid"></div>
+      </section>
+
+      <section>
+        <div class="title">Lifetime Stats</div>
+        <div class="statgrid">
+          <div class="card">Answered: <span id="lifeAns">0</span></div>
+          <div class="card">Correct: <span id="lifeCor">0</span></div>
+          <div class="card">Accuracy: <span id="lifeAcc">0%</span></div>
+          <div class="card">Best Streak: <span id="lifeBest">0</span></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="title">Session History <span class="muted">(Latest first)</span></div>
+        <div class="history" id="histBox">
+          <div class="hist-row hist-head">
+            <div>Date</div>
+            <div>Answered</div>
+            <div>Correct</div>
+            <div>Accuracy</div>
+            <div>Best Streak</div>
+            <div>Time</div>
+            <div>Level</div>
+          </div>
+          <div id="histRows"></div>
+        </div>
+        <div class="row" style="justify-content:flex-end;margin-top:.5rem">
+          <button class="btn" id="exportCSV">Export CSV</button>
+          <button class="btn" id="clearHist">Clear History</button>
+        </div>
+      </section>
+
+      <!-- Mistake Bank -->
+      <section id="mistakeBankSection">
+        <div class="title">Mistake Bank <span class="muted">(<span id="mistakeCount">0</span> problems)</span></div>
+        <p class="muted" style="margin-bottom:.75rem">Problems you got wrong - use Review mode to practice them</p>
+        <div id="mistakeBankList"></div>
+        <button class="btn" id="clearMistakes" style="margin-top:.75rem">Clear Mistake Bank</button>
+      </section>
+    </section>
+
+    <!-- PLAY -->
+    <section id="play" class="hidden">
+      <div class="muted" id="meta" style="text-align:center;margin-bottom:.5rem"></div>
+      <div id="question">5 + 3</div>
+      <form id="answerForm">
+        <input id="answerInput" type="number" inputmode="numeric" autocomplete="off" placeholder="Your answer" />
+        <button type="submit" class="btn primary">Submit</button>
+        <button type="button" id="skipBtn" class="btn">Skip</button>
+      </form>
+      <div id="feedback" class="muted"></div>
+      <div class="row" style="justify-content:center;margin-top:1rem">
+        <button class="btn" id="pauseBtn">Pause</button>
+        <button class="btn" id="quitBtn">Quit to Menu</button>
+      </div>
+    </section>
+
+    <!-- DONE -->
+    <section id="done" class="hidden">
+      <div class="title">Session Summary</div>
+      <div class="statgrid">
+        <div class="card">Questions: <span id="sumQ">0</span></div>
+        <div class="card">Correct: <span id="sumCorrect">0</span></div>
+        <div class="card">Accuracy: <span id="sumAcc">0%</span></div>
+        <div class="card">Time Used: <span id="sumTime">0:00</span></div>
+      </div>
+
+      <div class="title" style="margin-top:.75rem">Mistakes & Hints</div>
+      <ul id="mistList"></ul>
+
+      <div class="row" style="justify-content:flex-end;margin-top:.75rem">
+        <button class="btn" id="settingsBtn">Change Settings</button>
+        <button class="btn primary" id="replayBtn">Start New Session</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ---------- utilities ----------
+    const fmt = n => Number(n).toLocaleString('en');
+    const pow10 = n => Math.pow(10, n);
+    const rnd = (min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+    const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+    const parseNum = s => Number(String(s).replace(/[\,\s_]/g,''));
+    const clock = s => Math.floor(s/60)+":"+String(s%60).padStart(2,'0');
+
+    // ---------- persistence ----------
+    const LS_KEY = 'arith_profile_v4';
+    const defaultProfile = () => ({
+      lifetime:{answered:0,correct:0,bestStreak:0,sessions:0,totalTime:0},
+      level:1.0,
+      skills:{'+':{ans:0,cor:0},'-':{ans:0,cor:0},'*':{ans:0,cor:0},'/':{ans:0,cor:0}},
+      mistakeBank:[],
+      history:[],
+      milestones:{} // track reached milestones
+    });
+    function loadProfile(){
+      try{const raw=localStorage.getItem(LS_KEY);return raw?JSON.parse(raw):defaultProfile()}catch{ return defaultProfile() }
+    }
+    function saveProfile(p){ localStorage.setItem(LS_KEY,JSON.stringify(p)) }
+
+    // ---------- difficulty mapping ----------
+    function levelToDigits(level){
+      const L = clamp(level,1,10);
+      const addSub = clamp(Math.round(0.7*L+0.3),1,6);
+      const mulDiv = clamp(Math.round(0.5*L+0.5),1,5);
+      return {addSubDigits:addSub,mulDivDigits:mulDiv}
+    }
+
+    function getLevelDescription(level){
+      if(level < 2) return 'Beginner - Basic operations';
+      if(level < 3) return 'Learning - Single digit mastery';
+      if(level < 4) return 'Novice - Two digit numbers';
+      if(level < 5) return 'Developing - Mixed operations';
+      if(level < 6) return 'Intermediate - Larger numbers';
+      if(level < 7) return 'Proficient - Complex problems';
+      if(level < 8) return 'Advanced - Multi-digit mastery';
+      if(level < 9) return 'Expert - Challenging operations';
+      if(level < 10) return 'Elite - Near mastery';
+      return 'Master - Maximum difficulty';
+    }
+
+    // ---------- problem builders ----------
+    function buildAdd(maxDigits){
+      const upTo = pow10(maxDigits)-1;
+      const a=rnd(0,upTo), b=rnd(0,upTo);
+      return {q:`${fmt(a)} + ${fmt(b)}`, a:a+b, kind:'+'};
+    }
+    function buildSub(maxDigits){
+      const upTo = pow10(maxDigits)-1;
+      let a=rnd(0,upTo), b=rnd(0,upTo);
+      if(a<b) [a,b]=[b,a];
+      return {q:`${fmt(a)} − ${fmt(b)}`, a:a-b, kind:'-'};
+    }
+    function buildMul(digits){
+      const low=digits===1?2:pow10(digits-1), high=pow10(digits)-1;
+      const x=rnd(low,high), y=rnd(low,high);
+      return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
+    }
+    function buildDiv(digits){
+      const low=digits===1?2:pow10(digits-1), high=pow10(digits)-1;
+      const x=rnd(low,high), y=rnd(low,high);
+      const byX = Math.random()<0.5;
+      const dividend=x*y;
+      return byX?{q:`${fmt(dividend)} ÷ ${fmt(x)}`, a:y, kind:'/'}:{q:`${fmt(dividend)} ÷ ${fmt(y)}`, a:x, kind:'/'};
+    }
+    function hintFor(k){
+      switch(k){
+        case '+': return 'Add column by column; carry when sum ≥ 10';
+        case '-': return 'Subtract column by column; borrow if needed';
+        case '*': return 'Multiply each digit; add partial products';
+        case '/': return 'Long division; these problems divide evenly';
+      }
+    }
+
+    // ---------- state ----------
+    const el = id=>document.getElementById(id);
+    const state = {
+      mode:'adaptive',
+      level:1.0,
+      qTarget:20,
+      durationSec:120,
+      idx:0, tries:0, correct:0, streak:0, best:0,
+      timeLeft:0, timer:null, problem:null, lastStart:0,
+      opsSet:new Set(['+','-','*','/']),
+      rolling:[],
+      N:10,
+      isPaused:false,
+      sessionStart:0
+    };
+
+    const profile = loadProfile();
+    const stateMistakes=[];
+
+    // ---------- UI updates ----------
+    function updateProgressViz(){
+      const lvl = profile.level || 1.0;
+      el('levelDisplay').textContent = lvl.toFixed(1);
+      el('levelDesc').textContent = getLevelDescription(lvl);
+      const percent = ((lvl - 1) / 9) * 100; // 1-10 scale
+      el('progressFill').style.width = Math.min(100, Math.max(0, percent)) + '%';
+    }
+
+    function updateSkillDisplay(){
+      const grid = el('skillGrid');
+      grid.innerHTML = '';
+      const ops = ['+', '-', '*', '/'];
+      const labels = {'+':'Addition','-':'Subtraction','*':'Multiplication','/':'Division'};
+      
+      ops.forEach(op => {
+        const skill = profile.skills[op];
+        const acc = skill.ans > 0 ? Math.round((skill.cor / skill.ans) * 100) : 0;
+        const row = document.createElement('div');
+        row.className = 'skill-row';
+        row.innerHTML = `
+          <div class="skill-op">${op}</div>
+          <div style="flex:1">
+            <div style="font-size:.875rem;margin-bottom:.25rem">${labels[op]}</div>
+            <div class="skill-bar"><div class="skill-bar-fill" style="width:${acc}%"></div></div>
+          </div>
+          <div class="skill-stat">${skill.cor}/${skill.ans} (${acc}%)</div>
+        `;
+        grid.appendChild(row);
+      });
+    }
+
+    function updateMistakeBank(){
+      const count = profile.mistakeBank.length;
+      el('mistakeCount').textContent = count;
+      
+      const list = el('mistakeBankList');
+      if(count === 0){
+        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✓</div><div>No mistakes yet - great job!</div></div>';
+      } else {
+        list.innerHTML = '';
+        profile.mistakeBank.slice(0, 10).forEach((m, i) => {
+          const div = document.createElement('div');
+          div.className = 'mist';
+          div.innerHTML = `<strong>${m.q}</strong> = ${fmt(m.a)} <span class="muted">(${m.kind})</span>`;
+          list.appendChild(div);
+        });
+        if(count > 10){
+          const more = document.createElement('div');
+          more.className = 'muted';
+          more.style.textAlign = 'center';
+          more.style.marginTop = '.5rem';
+          more.textContent = `+${count - 10} more problems`;
+          list.appendChild(more);
+        }
+      }
+    }
+
+    function refreshLifetime(){
+      const L = profile.lifetime;
+      const acc = L.answered?Math.round(100*L.correct/L.answered):0;
+      el('lifeAns').textContent = fmt(L.answered);
+      el('lifeCor').textContent = fmt(L.correct);
+      el('lifeAcc').textContent = acc+'%';
+      el('lifeBest').textContent = fmt(L.bestStreak||0);
+      updateProgressViz();
+      updateSkillDisplay();
+      updateMistakeBank();
+      renderHistory();
+    }
+
+    // ---------- milestone celebrations ----------
+    function checkMilestones(newLevel){
+      const milestones = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+      const oldLevel = Math.floor(profile.level || 1);
+      const reached = Math.floor(newLevel);
+      
+      if(reached > oldLevel && milestones.includes(reached)){
+        if(!profile.milestones[reached]){
+          profile.milestones[reached] = true;
+          showMilestone(reached);
+        }
+      }
+    }
+
+    function showMilestone(level){
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      
+      const milestone = document.createElement('div');
+      milestone.className = 'milestone';
+      
+      const emojis = {2:'🌟',3:'⚡',4:'🔥',5:'🎯',6:'💪',7:'🚀',8:'👑',9:'💎',10:'🏆'};
+      const titles = {2:'Rising Star!',3:'Getting Better!',4:'Solid Progress!',5:'Halfway There!',6:'Strong Skills!',7:'Advanced Level!',8:'Expert Status!',9:'Nearly Perfect!',10:'MASTER ACHIEVED!'};
+      
+      milestone.innerHTML = `
+        <div class="milestone-emoji">${emojis[level] || '⭐'}</div>
+        <div class="milestone-title">${titles[level] || 'Level Up!'}</div>
+        <div class="muted">You've reached Level ${level}.0!</div>
+        <button class="btn primary" style="margin-top:1rem" onclick="this.parentElement.parentElement.remove();this.parentElement.remove()">Continue</button>
+      `;
+      
+      document.body.appendChild(overlay);
+      document.body.appendChild(milestone);
+      
+      setTimeout(() => {
+        overlay.addEventListener('click', () => {
+          overlay.remove();
+          milestone.remove();
+        });
+      }, 100);
+    }
+
+    // ---------- pause functionality ----------
+    let pauseOverlay = null;
+    
+    function togglePause(){
+      if(state.isPaused){
+        // Resume
+        state.isPaused = false;
+        el('pauseBtn').textContent = 'Pause';
+        if(pauseOverlay){
+          pauseOverlay.remove();
+          pauseOverlay = null;
+        }
+        el('answerInput').focus();
+      } else {
+        // Pause
+        state.isPaused = true;
+        el('pauseBtn').textContent = 'Resume';
+        
+        pauseOverlay = document.createElement('div');
+        pauseOverlay.className = 'pause-overlay';
+        pauseOverlay.innerHTML = `
+          <div class="pause-box">
+            <div class="pause-title">⏸️ Paused</div>
+            <p class="muted" style="margin-bottom:1rem">Take your time - timer is stopped</p>
+            <button class="btn primary" id="resumeFromOverlay">Resume</button>
+          </div>
+        `;
+        document.body.appendChild(pauseOverlay);
+        
+        el('resumeFromOverlay').addEventListener('click', togglePause);
+      }
+    }
+
+    // ---------- mode selector ----------
+    document.querySelectorAll('#modeSeg button').forEach(b=>{
+      b.addEventListener('click',()=>{
+        document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        state.mode = b.dataset.mode;
+        el('manualBlock').classList.toggle('hidden', state.mode!=='manual');
+        
+        if(state.mode === 'adaptive'){
+          el('modeHelp').textContent = 'Adapts difficulty from your accuracy and speed';
+        } else if(state.mode === 'manual'){
+          el('modeHelp').textContent = 'Use the slider to set difficulty 1-10';
+        } else {
+          el('modeHelp').textContent = profile.mistakeBank.length > 0 
+            ? `Practice your ${profile.mistakeBank.length} saved mistakes`
+            : 'No mistakes saved yet - complete a session first';
+        }
+      });
+    });
+
+    // ---------- ops checkboxes ----------
+    document.querySelectorAll('.opChk').forEach(c=>{
+      c.addEventListener('change',()=>{
+        if(c.checked) state.opsSet.add(c.dataset.op); 
+        else state.opsSet.delete(c.dataset.op);
+        if(state.opsSet.size===0){ 
+          state.opsSet.add(c.dataset.op); 
+          c.checked=true;
+          alert('At least one operation must be selected');
+        }
+      });
+    });
+
+    // ---------- controls ----------
+    el('durationSec').addEventListener('change',e=>state.durationSec=clamp(Number(e.target.value)||120,30,3600));
+    el('qTarget').addEventListener('change',e=>state.qTarget=clamp(Number(e.target.value)||20,5,200));
+    el('manualLevel').addEventListener('input',e=>{
+      const val = Number(e.target.value);
+      state.level = val;
+      el('manualDisplay').textContent = val.toFixed(1);
+    });
+
+    // ---------- export / reset / history ----------
+    el('exportBtn').addEventListener('click',()=>{
+      const blob=new Blob([JSON.stringify(profile,null,2)],{type:'application/json'});
+      const a=document.createElement('a'); 
+      a.href=URL.createObjectURL(blob); 
+      a.download='arithmetic-progress.json'; 
+      a.click(); 
+      URL.revokeObjectURL(a.href);
+    });
+
+    el('resetBtn').addEventListener('click',()=>{
+      if(!confirm('Reset all progress? This cannot be undone.')) return;
+      const fresh=defaultProfile();
+      Object.keys(profile).forEach(k=>delete profile[k]);
+      Object.assign(profile,fresh);
+      saveProfile(profile); 
+      refreshLifetime();
+      alert('Progress reset successfully');
+    });
+
+    el('exportCSV').addEventListener('click',()=>{
+      if(profile.history.length === 0){
+        alert('No history to export');
+        return;
+      }
+      const head=['date','answered','correct','accuracy','best_streak','time_sec','level'];
+      const rows=profile.history.map(h=>[h.dateISO,h.answered,h.correct,h.accuracy,h.best,h.timeSec,h.level]);
+      const csv=[head.join(','),...rows.map(r=>r.join(','))].join('\n');
+      const blob=new Blob([csv],{type:'text/csv'});
+      const a=document.createElement('a'); 
+      a.href=URL.createObjectURL(blob); 
+      a.download='arithmetic-history.csv'; 
+      a.click(); 
+      URL.revokeObjectURL(a.href);
+    });
+
+    el('clearHist').addEventListener('click',()=>{ 
+      if(!confirm('Clear all session history?')) return;
+      profile.history=[]; 
+      saveProfile(profile); 
+      renderHistory();
+    });
+
+    el('clearMistakes').addEventListener('click',()=>{
+      if(!confirm('Clear mistake bank?')) return;
+      profile.mistakeBank = [];
+      saveProfile(profile);
+      updateMistakeBank();
+    });
+
+    // ---------- history rendering ----------
+    function renderHistory(){
+      const rows = el('histRows');
+      if(profile.history.length === 0){
+        rows.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div>No sessions yet - start playing to build history</div></div>';
+        return;
+      }
+      
+      rows.innerHTML='';
+      profile.history.forEach(h=>{
+        const div=document.createElement('div');
+        div.className='hist-row';
+        const dt = new Date(h.dateISO);
+        const dateStr = dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        
+        // Mobile-friendly layout
+        div.innerHTML = `
+          <div><span class="hist-mobile-label">Date:</span>${dateStr}</div>
+          <div><span class="hist-mobile-label">Q:</span>${h.answered}</div>
+          <div><span class="hist-mobile-label">✓:</span>${h.correct}</div>
+          <div><span class="hist-mobile-label">Acc:</span>${h.accuracy}%</div>
+          <div><span class="hist-mobile-label">Streak:</span>${h.best}</div>
+          <div><span class="hist-mobile-label">Time:</span>${clock(h.timeSec)}</div>
+          <div><span class="hist-mobile-label">Lvl:</span>${h.level.toFixed(1)}</div>
+        `;
+        rows.appendChild(div);
+      });
+    }
+
+    // ---------- session management ----------
+    function startSession(){
+      // Validation
+      if(state.mode === 'review' && profile.mistakeBank.length === 0){
+        alert('No mistakes to review! Complete a session in Adaptive or Manual mode first.');
+        return;
+      }
+
+      state.level = state.mode==='manual'? Number(el('manualLevel').value) : profile.level||1.0;
+      state.qTarget = clamp(Number(el('qTarget').value)||20,5,200);
+      state.durationSec = clamp(Number(el('durationSec').value)||120,30,3600);
+      state.idx=0; state.tries=0; state.correct=0; state.streak=0; state.best=0; 
+      state.rolling=[]; stateMistakes.length = 0;
+      state.timeLeft = state.durationSec;
+      state.sessionStart = Date.now();
+      state.isPaused = false;
+
+      el('setup').classList.add('hidden');
+      el('done').classList.add('hidden');
+      el('play').classList.remove('hidden');
+      el('pauseBtn').textContent = 'Pause';
+
+      updateBars();
+      nextProblem();
+      
+      clearInterval(state.timer);
+      state.timer=setInterval(()=>{
+        if(state.isPaused) return;
+        state.timeLeft--; 
+        if(state.timeLeft<=0){
+          state.timeLeft=0; 
+          updateBars(); 
+          endSession();
+        } else {
+          updateBars();
+        }
+      },1000);
+    }
+
+    function endSession(){
+      clearInterval(state.timer);
+      if(pauseOverlay){
+        pauseOverlay.remove();
+        pauseOverlay = null;
+      }
+      
+      el('play').classList.add('hidden');
+      el('done').classList.remove('hidden');
+
+      // Calculate stats
+      const elapsed = Math.floor((Date.now()-state.sessionStart)/1000);
+      const accPct = state.tries? Math.round(100*state.correct/state.tries) : 0;
+
+      // Update lifetime
+      profile.lifetime.answered += state.tries;
+      profile.lifetime.correct += state.correct;
+      profile.lifetime.totalTime += elapsed;
+      profile.lifetime.sessions += 1;
+      profile.lifetime.bestStreak = Math.max(profile.lifetime.bestStreak||0, state.best);
+
+      // Add to history
+      profile.history.unshift({
+        dateISO:new Date().toISOString(),
+        answered:state.tries,
+        correct:state.correct,
+        accuracy:accPct,
+        best:state.best,
+        timeSec:elapsed,
+        level: Number((state.mode==='manual'? state.level : (profile.level||state.level)).toFixed(1))
+      });
+
+      // Adaptive level adjustment
+      if(state.mode==='adaptive'){
+        const acc = state.tries? state.correct/state.tries : 0;
+        const target=0.85;
+        const delta = clamp((acc-target)*1.5, -0.5, 0.5);
+        const oldLevel = profile.level || 1;
+        profile.level = clamp(oldLevel + delta, 1, 10);
+        checkMilestones(profile.level);
+      }
+
+      saveProfile(profile);
+      refreshLifetime();
+
+      // Display summary
+      el('sumQ').textContent = state.idx;
+      el('sumCorrect').textContent = state.correct;
+      el('sumAcc').textContent = accPct+ '%';
+      el('sumTime').textContent = clock(elapsed);
+
+      // Render mistakes
+      const list=el('mistList'); 
+      list.innerHTML='';
+      if(stateMistakes.length===0){ 
+        const li=document.createElement('li'); 
+        li.className='empty-state'; 
+        li.innerHTML='<div class="empty-state-icon">✓</div><div>Perfect! No mistakes this session</div>';
+        list.appendChild(li); 
+      } else {
+        stateMistakes.forEach(m=>{ 
+          const li=document.createElement('li'); 
+          li.className='mist'; 
+          li.innerHTML = `
+            <div style="font-weight:600">#${m.idx}: ${m.problem}</div>
+            <div class="err">Your answer: ${m.your}</div>
+            <div class="ok">Correct answer: ${m.correct}</div>
+            <div class="muted" style="margin-top:.5rem">💡 ${hintFor(m.kind)}</div>
+          `; 
+          list.appendChild(li); 
+        });
+      }
+    }
+
+    // ---------- problem logic ----------
+    function pickOp(){
+      const ops=[...state.opsSet];
+      if(state.mode!=='adaptive') return ops[rnd(0,ops.length-1)];
+      
+      const weights = ops.map(op=>{
+        const s=profile.skills[op];
+        const acc = s.ans? s.cor/s.ans : 0.5;
+        return 1.2 - acc; // Lower accuracy = higher weight
+      });
+      const sum = weights.reduce((a,b)=>a+b,0) || ops.length;
+      let r=Math.random()*sum;
+      for(let i=0;i<ops.length;i++){ 
+        r-=weights[i]; 
+        if(r<=0) return ops[i]; 
+      }
+      return ops[ops.length-1];
+    }
+
+    function nextProblem(){
+      const L = state.mode==='manual'? state.level : (profile.level||state.level);
+      const {addSubDigits,mulDivDigits} = levelToDigits(L);
+      
+      let p;
+      if(state.mode==='review' && profile.mistakeBank.length>0){
+        const m = profile.mistakeBank[rnd(0,profile.mistakeBank.length-1)];
+        p = {q:m.q, a:m.a, kind:m.kind, fromBank:true};
+      } else {
+        const op = pickOp();
+        if(op==='+') p=buildAdd(addSubDigits);
+        else if(op==='-') p=buildSub(addSubDigits);
+        else if(op==='*') p=buildMul(mulDivDigits);
+        else p=buildDiv(mulDivDigits);
+      }
+      
+      state.problem = p;
+      state.lastStart = performance.now();
+
+      const op = p.kind;
+      const meta = op==='+'||op==='-' 
+        ? `Add/Subtract up to ${addSubDigits} digits` 
+        : `${mulDivDigits}-digit ${op==='*'?'Multiply':'Divide'}${op==='/'?' (even division)':''}`;
+      el('meta').textContent = meta;
+      el('question').textContent = p.q;
+      el('answerInput').value='';
+      el('answerInput').focus();
+      el('feedback').textContent = '';
+    }
+
+    function updateBars(){
+      el('qIdx').textContent = `${state.idx}/${state.qTarget}`;
+      el('clock').textContent = clock(state.timeLeft);
+      const acc = state.tries? Math.round(100*state.correct/state.tries):0;
+      el('acc').textContent = acc+'%';
+      el('streak').textContent = state.streak;
+    }
+
+    function recordWrong(guessRaw,p){
+      stateMistakes.push({
+        idx:state.idx+1,
+        problem:p.q,
+        your:guessRaw,
+        correct:fmt(p.a),
+        kind:p.kind
+      });
+      
+      if(!profile.mistakeBank.some(m=>m.q===p.q && m.a===p.a)){
+        profile.mistakeBank.push({q:p.q, a:p.a, kind:p.kind});
+        // Keep bank under 100 items
+        if(profile.mistakeBank.length > 100){
+          profile.mistakeBank = profile.mistakeBank.slice(-100);
+        }
+      }
+    }
+
+    function adjustLevel(ok, ms){
+      if(state.mode!=='adaptive') return;
+      
+      state.rolling.push({ok,ms}); 
+      if(state.rolling.length>state.N) state.rolling.shift();
+      
+      const n=state.rolling.length; 
+      if(n<state.N) return;
+      
+      const acc = state.rolling.filter(r=>r.ok).length / n;
+      const avgMs = state.rolling.reduce((a,r)=>a+r.ms,0)/n;
+      const {addSubDigits,mulDivDigits} = levelToDigits(profile.level||1);
+      const estDigits = (addSubDigits+mulDivDigits)/2;
+      const targetMs = 2500 + 400*estDigits;
+      
+      let delta = 0;
+      if(acc>=0.85 && avgMs<=targetMs) delta = +0.2;
+      else if(acc<0.6 || avgMs>targetMs*1.4) delta = -0.2;
+      
+      if(delta!==0){ 
+        const oldLevel = profile.level || 1;
+        profile.level = clamp(oldLevel + delta, 1, 10);
+        checkMilestones(profile.level);
+        saveProfile(profile);
+      }
+    }
+
+    // ---------- event listeners ----------
+    el('startBtn').addEventListener('click', startSession);
+    el('replayBtn').addEventListener('click', startSession);
+    el('settingsBtn').addEventListener('click',()=>{ 
+      el('done').classList.add('hidden'); 
+      el('setup').classList.remove('hidden'); 
+    });
+
+    el('pauseBtn').addEventListener('click', togglePause);
+    
+    el('quitBtn').addEventListener('click',()=>{
+      if(!confirm('Quit session? Progress will not be saved.')) return;
+      clearInterval(state.timer);
+      if(pauseOverlay){
+        pauseOverlay.remove();
+        pauseOverlay = null;
+      }
+      el('play').classList.add('hidden');
+      el('setup').classList.remove('hidden');
+    });
+
+    el('skipBtn').addEventListener('click',()=>{
+      const p = state.problem; if(!p) return;
+      state.tries++; state.streak=0; state.idx++;
+      
+      recordWrong('(skipped)',p);
+      profile.skills[p.kind].ans++;
+      saveProfile(profile);
+      
+      updateBars();
+      if(state.idx>=state.qTarget) return endSession();
+      
+      nextProblem();
+    });
+
+    el('answerForm').addEventListener('submit',e=>{
+      e.preventDefault();
+      const p = state.problem; if(!p) return;
+      const raw = el('answerInput').value.trim(); if(raw==='') return;
+      const guess = parseNum(raw);
+      const ok = guess===p.a;
+      const now = performance.now(); 
+      const ms = Math.max(100, now - state.lastStart);
+
+      state.tries++; 
+      if(ok){ 
+        state.correct++; 
+        state.streak++; 
+        state.best=Math.max(state.best,state.streak); 
+      } else { 
+        state.streak=0; 
+        recordWrong(raw,p); 
+      }
+      state.idx++;
+
+      const sk = profile.skills[p.kind]; 
+      sk.ans++; 
+      if(ok) sk.cor++;
+
+      // Remove from mistake bank if answered correctly in review mode
+      if(ok && state.mode==='review' && p.fromBank){
+        profile.mistakeBank = profile.mistakeBank.filter(m=>!(m.q===p.q && m.a===p.a));
+      }
+
+      adjustLevel(ok, ms);
+      saveProfile(profile);
+      updateBars();
+
+      const fb = el('feedback');
+      if(ok){ 
+        fb.textContent='✓ Correct!'; 
+        fb.className='ok'; 
+      } else { 
+        fb.innerHTML=`✗ Wrong. Answer: ${fmt(p.a)}`; 
+        fb.className='err'; 
+      }
+
+      if(state.idx>=state.qTarget) {
+        setTimeout(endSession, 800);
+        return;
+      }
+      
+      setTimeout(()=>{ 
+        nextProblem(); 
+      }, ok ? 400 : 1000);
+    });
+
+    el('answerInput').addEventListener('keydown',e=>{ 
+      if(e.key==='Escape') e.target.value=''; 
+    });
+
+    // ---------- initialize ----------
+    if(profile.level) { 
+      el('manualLevel').value = profile.level; 
+      el('manualDisplay').textContent = profile.level.toFixed(1);
+    }
+    refreshLifetime();
+  </script>
+</body>
+</html>
