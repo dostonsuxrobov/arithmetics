@@ -6,86 +6,90 @@
   <title>Arithmetic Trainer</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{min-height:100vh;background:#0a0a0a;color:#fafafa;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+    body{min-height:100vh;background:#09090b;color:#fafafa;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
     .container{max-width:56rem;margin:0 auto;padding:1rem}
     @media(min-width:640px){.container{padding:1.5rem}}
     header{margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
     h1{font-size:1.125rem;font-weight:600;letter-spacing:-.025em}
-    .pill{background:#171717;border:1px solid #262626;border-radius:9999px;padding:.25rem .75rem;color:#a3a3a3;font-size:.75rem;white-space:nowrap}
-    .pill span{color:#e5e5e5}
-    section{background:#000;border:1px solid #262626;border-radius:1rem;padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,.3);margin-top:1rem}
+    .pill{background:#18181b;border:1px solid #27272a;border-radius:9999px;padding:.25rem .75rem;color:#a1a1aa;font-size:.75rem;white-space:nowrap}
+    .pill span{color:#fafafa}
+    section{background:#09090b;border:1px solid #27272a;border-radius:.75rem;padding:1rem;margin-top:1rem}
     .row{display:flex;gap:.75rem;flex-wrap:wrap}
     .grid{display:grid;gap:.75rem}
     @media(min-width:640px){.grid.cols-2{grid-template-columns:repeat(2,1fr)}.grid.cols-3{grid-template-columns:repeat(3,1fr)}.grid.cols-4{grid-template-columns:repeat(4,1fr)}}
-    .btn{height:2.5rem;border-radius:.75rem;border:1px solid #262626;background:#171717;color:#fafafa;padding:0 1rem;font-size:.875rem;cursor:pointer;transition:all .2s;white-space:nowrap}
-    .btn:hover{background:#262626}
-    .btn:focus{outline:none;box-shadow:0 0 0 2px #404040}
+    .btn{height:2.25rem;border-radius:.375rem;border:1px solid #27272a;background:#18181b;color:#fafafa;padding:0 1rem;font-size:.875rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .btn:hover{background:#27272a}
+    .btn:focus{outline:none;box-shadow:0 0 0 2px #3f3f46}
     .btn:disabled{opacity:.5;cursor:not-allowed}
-    .btn.primary{background:#fafafa;color:#171717;border-color:#e5e5e5}
+    .btn.primary{background:#fafafa;color:#09090b;border-color:#fafafa}
+    .btn.primary:hover{background:#e4e4e7}
     .btn.ghost{background:transparent}
-    .seg{display:flex;border:1px solid #262626;border-radius:.75rem;overflow:hidden}
-    .seg button{border:0;height:2.5rem;padding:0 .75rem;background:#171717;color:#e5e5e5;font-size:.875rem;cursor:pointer;transition:all .2s;flex:1}
-    .seg button.active{background:#fafafa;color:#171717}
-    .seg button:hover:not(.active){background:#262626}
-    label{font-size:.875rem;color:#d4d4d4;display:flex;align-items:center;gap:.5rem;cursor:pointer}
+    .seg{display:flex;border:1px solid #27272a;border-radius:.375rem;overflow:hidden}
+    .seg button{border:0;height:2.25rem;padding:0 .75rem;background:#18181b;color:#a1a1aa;font-size:.875rem;cursor:pointer;transition:all .15s;flex:1}
+    .seg button.active{background:#fafafa;color:#09090b}
+    .seg button:hover:not(.active){background:#27272a}
+    label{font-size:.875rem;color:#a1a1aa;display:flex;align-items:center;gap:.5rem;cursor:pointer}
     input[type="number"],input[type="text"],input[type="range"],input[type="checkbox"]{accent-color:#fafafa}
-    input[type="number"],input[type="text"]{height:2.5rem;border-radius:.5rem;border:1px solid #262626;background:#171717;color:#fafafa;padding:0 .75rem;font-size:.875rem;width:100%}
-    input[type="number"]:focus,input[type="text"]:focus{outline:none;box-shadow:0 0 0 2px #404040}
-    .muted{font-size:.75rem;color:#a3a3a3}
-    .title{font-size:.875rem;color:#d4d4d4;margin-bottom:.5rem;font-weight:500}
+    input[type="number"],input[type="text"]{height:2.25rem;border-radius:.375rem;border:1px solid #27272a;background:#18181b;color:#fafafa;padding:0 .75rem;font-size:.875rem;width:100%}
+    input[type="number"]:focus,input[type="text"]:focus{outline:none;box-shadow:0 0 0 2px #3f3f46}
+    .muted{font-size:.75rem;color:#71717a}
+    .title{font-size:.875rem;color:#a1a1aa;margin-bottom:.5rem;font-weight:500}
     .statgrid{display:grid;gap:.5rem;grid-template-columns:repeat(2,1fr)}
     @media(min-width:640px){.statgrid{grid-template-columns:repeat(4,1fr)}}
-    .card{background:#171717;border:1px solid #262626;border-radius:.75rem;padding:.75rem;font-size:.875rem;color:#d4d4d4}
+    .card{background:#18181b;border:1px solid #27272a;border-radius:.375rem;padding:.75rem;font-size:.875rem;color:#a1a1aa}
     .card span{color:#fafafa;font-weight:500}
     #question{font-size:2rem;font-weight:600;letter-spacing:-.025em;margin:.75rem 0;word-wrap:break-word;text-align:center}
     @media(min-width:640px){#question{font-size:2.5rem}}
     #answerForm{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
-    #answerInput{height:3rem;flex:1;max-width:20rem;border-radius:.75rem;border:1px solid #262626;background:#0a0a0a;color:#fafafa;padding:0 1rem;font-size:1.125rem;text-align:center}
-    #answerInput:focus{outline:none;box-shadow:0 0 0 2px #404040}
+    #answerInput{height:2.75rem;flex:1;max-width:20rem;border-radius:.375rem;border:1px solid #27272a;background:#18181b;color:#fafafa;padding:0 1rem;font-size:1.125rem;text-align:center}
+    #answerInput:focus{outline:none;box-shadow:0 0 0 2px #3f3f46}
     #feedback{margin-top:.75rem;font-size:.875rem;font-weight:500;text-align:center;min-height:1.5rem}
     .ok{color:#22c55e}.err{color:#ef4444}
     .hidden{display:none}
     ul{list-style:none}
-    li.mist{background:#171717;border:1px solid #262626;border-radius:.75rem;padding:.75rem;margin:.5rem 0;font-size:.875rem}
+    li.mist{background:#18181b;border:1px solid #27272a;border-radius:.375rem;padding:.75rem;margin:.5rem 0;font-size:.875rem}
     li.mist > div{margin:.25rem 0}
-    .history{max-height:20rem;overflow:auto;border:1px solid #262626;border-radius:.75rem;background:#000}
-    .hist-row{display:grid;grid-template-columns:1fr;gap:.5rem;padding:.75rem;border-bottom:1px solid #1f1f1f;font-size:.75rem}
+    .history{max-height:20rem;overflow:auto;border:1px solid #27272a;border-radius:.375rem;background:#09090b}
+    .hist-row{display:grid;grid-template-columns:1fr;gap:.5rem;padding:.75rem;border-bottom:1px solid #27272a;font-size:.75rem}
     @media(min-width:768px){.hist-row{grid-template-columns:10rem 4rem 4rem 4rem 5rem 5rem 4rem;font-size:.875rem}}
-    .hist-head{position:sticky;top:0;background:#0a0a0a;font-weight:600;border-bottom:2px solid #262626}
-    .hist-mobile-label{display:inline;color:#737373;margin-right:.5rem}
+    .hist-head{position:sticky;top:0;background:#09090b;font-weight:600;border-bottom:1px solid #3f3f46}
+    .hist-mobile-label{display:inline;color:#71717a;margin-right:.5rem}
     @media(min-width:768px){.hist-mobile-label{display:none}}
     
-    /* Progress visualization */
-    .progress-viz{margin:.75rem 0;padding:1rem;background:#171717;border:1px solid #262626;border-radius:.75rem}
-    .progress-track{height:1.5rem;background:#0a0a0a;border-radius:.75rem;position:relative;overflow:hidden;border:1px solid #262626}
-    .progress-fill{height:100%;background:linear-gradient(90deg, #22c55e 0%, #3b82f6 50%, #8b5cf6 100%);transition:width .3s ease;position:relative}
-    .progress-markers{display:flex;justify-content:space-between;margin-top:.5rem;font-size:.75rem;color:#737373}
-    .level-display{text-align:center;font-size:1.5rem;font-weight:700;color:#fafafa;margin-bottom:.5rem}
-    .level-desc{text-align:center;font-size:.875rem;color:#a3a3a3}
+    /* Progress visualization - minimal shadcn style */
+    .progress-viz{margin:.75rem 0;padding:1rem;background:#18181b;border:1px solid #27272a;border-radius:.375rem}
+    .progress-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.75rem}
+    .level-display{font-size:1.25rem;font-weight:600;color:#fafafa}
+    .level-desc{font-size:.75rem;color:#71717a}
+    .progress-track{height:.375rem;background:#27272a;border-radius:9999px;overflow:hidden}
+    .progress-fill{height:100%;background:#fafafa;transition:width .3s ease;border-radius:9999px}
+    .progress-markers{display:flex;justify-content:space-between;margin-top:.5rem;font-size:.625rem;color:#52525b}
     
-    /* Milestone celebration */
-    .milestone{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#171717;border:2px solid #fafafa;border-radius:1rem;padding:2rem;text-align:center;z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,.8);animation:pop .3s ease}
-    @keyframes pop{0%{transform:translate(-50%,-50%) scale(.8);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-    .milestone-title{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
-    .milestone-emoji{font-size:3rem;margin:.5rem 0}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999}
+    /* Milestone popup - only shows after session */
+    .milestone{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#18181b;border:1px solid #27272a;border-radius:.75rem;padding:2rem;text-align:center;z-index:1000;box-shadow:0 4px 24px rgba(0,0,0,.5);animation:pop .2s ease}
+    @keyframes pop{0%{transform:translate(-50%,-50%) scale(.95);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+    .milestone-title{font-size:1.25rem;font-weight:600;margin-bottom:.25rem;color:#fafafa}
+    .milestone-emoji{font-size:2.5rem;margin:.75rem 0}
+    .milestone-desc{font-size:.875rem;color:#71717a;margin-bottom:1rem}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:999}
     
     /* Empty states */
-    .empty-state{text-align:center;padding:2rem;color:#737373}
-    .empty-state-icon{font-size:3rem;margin-bottom:1rem;opacity:.5}
+    .empty-state{text-align:center;padding:2rem;color:#71717a}
+    .empty-state-icon{font-size:2rem;margin-bottom:.75rem;opacity:.5}
     
     /* Pause overlay */
     .pause-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:100;display:flex;align-items:center;justify-content:center}
-    .pause-box{background:#171717;border:1px solid #262626;border-radius:1rem;padding:2rem;text-align:center}
-    .pause-title{font-size:1.5rem;font-weight:600;margin-bottom:1rem}
+    .pause-box{background:#18181b;border:1px solid #27272a;border-radius:.75rem;padding:2rem;text-align:center}
+    .pause-title{font-size:1.25rem;font-weight:600;margin-bottom:.75rem}
     
     /* Skill bars */
     .skill-grid{display:grid;gap:.5rem;margin-top:.75rem}
-    .skill-row{display:flex;align-items:center;gap:.75rem;background:#171717;border:1px solid #262626;border-radius:.5rem;padding:.5rem .75rem}
-    .skill-op{font-size:1rem;font-weight:600;width:1.5rem;text-align:center}
-    .skill-bar{flex:1;height:.5rem;background:#0a0a0a;border-radius:.25rem;overflow:hidden}
-    .skill-bar-fill{height:100%;background:#22c55e;transition:width .3s}
-    .skill-stat{font-size:.75rem;color:#a3a3a3;min-width:4rem;text-align:right}
+    .skill-row{display:flex;align-items:center;gap:.75rem;background:#18181b;border:1px solid #27272a;border-radius:.375rem;padding:.5rem .75rem}
+    .skill-op{font-size:1rem;font-weight:600;width:1.5rem;text-align:center;color:#a1a1aa}
+    .skill-bar{flex:1;height:.375rem;background:#27272a;border-radius:9999px;overflow:hidden}
+    .skill-bar-fill{height:100%;background:#fafafa;transition:width .3s;border-radius:9999px}
+    .skill-stat{font-size:.75rem;color:#71717a;min-width:4rem;text-align:right}
+    .skill-level{font-size:.625rem;color:#52525b}
   </style>
 </head>
 <body>
@@ -104,17 +108,21 @@
     <section id="setup">
       <!-- Progress Visualization -->
       <div class="progress-viz">
-        <div class="level-display">Level <span id="levelDisplay">1.0</span></div>
-        <div class="level-desc" id="levelDesc">Beginner - Basic operations</div>
+        <div class="progress-header">
+          <div>
+            <div class="level-display">Level <span id="levelDisplay">1.0</span></div>
+            <div class="level-desc" id="levelDesc">Beginner - Basic operations</div>
+          </div>
+        </div>
         <div class="progress-track">
           <div class="progress-fill" id="progressFill" style="width:10%"></div>
         </div>
         <div class="progress-markers">
-          <span>1.0<br><small>Start</small></span>
-          <span>3.0<br><small>Novice</small></span>
-          <span>5.0<br><small>Intermediate</small></span>
-          <span>7.0<br><small>Advanced</small></span>
-          <span>10.0<br><small>Master</small></span>
+          <span>1.0</span>
+          <span>3.0</span>
+          <span>5.0</span>
+          <span>7.0</span>
+          <span>10.0</span>
         </div>
       </div>
 
@@ -250,6 +258,9 @@
     </section>
   </div>
 
+  <!-- Milestone container - populated after session ends -->
+  <div id="milestoneContainer"></div>
+
   <script>
     // ---------- utilities ----------
     const fmt = n => Number(n).toLocaleString('en');
@@ -263,7 +274,6 @@
     const LS_KEY = 'arith_profile_v5';
     const defaultProfile = () => ({
       lifetime:{answered:0,correct:0,bestStreak:0,sessions:0,totalTime:0},
-      // Per-operation levels and rolling performance
       opLevels:{'+':{level:1.0,rolling:[]},'-':{level:1.0,rolling:[]},
                 '*':{level:1.0,rolling:[]},'/':{level:1.0,rolling:[]}},
       skills:{'+':{ans:0,cor:0},'-':{ans:0,cor:0},'*':{ans:0,cor:0},'/':{ans:0,cor:0}},
@@ -276,7 +286,6 @@
         const raw=localStorage.getItem(LS_KEY);
         if(raw){
           const p = JSON.parse(raw);
-          // Migrate from v4 if needed
           if(!p.opLevels){
             p.opLevels = {'+':{level:p.level||1.0,rolling:[]},'-':{level:p.level||1.0,rolling:[]},
                           '*':{level:p.level||1.0,rolling:[]},'/':{level:p.level||1.0,rolling:[]}};
@@ -289,16 +298,8 @@
     function saveProfile(p){ localStorage.setItem(LS_KEY,JSON.stringify(p)) }
 
     // ---------- difficulty mapping ----------
-    // Much more gradual progression
     function levelToDigits(level){
       const L = clamp(level,1,10);
-      // For addition/subtraction: starts at 1 digit, grows slowly
-      // Level 1.0 = 1 digit (0-9)
-      // Level 2.0 = 1-2 digits (0-99) 
-      // Level 4.0 = 2 digits (10-99)
-      // Level 6.0 = 3 digits (100-999)
-      // Level 8.0 = 4 digits
-      // Level 10.0 = 5-6 digits
       const addSubDigits = L < 2 ? 1 : 
                            L < 3 ? 2 :
                            L < 5 ? 2 :
@@ -306,15 +307,8 @@
                            L < 9 ? 4 : 
                            Math.min(6, Math.floor(L));
       
-      // For multiply/divide: even more gradual
-      // Level 1.0 = single digit × single digit (2-9 × 2-9)
-      // Level 2.0-3.0 = still single digit but full range
-      // Level 4.0 = 1 digit × 2 digit
-      // Level 6.0 = 2 digit × 2 digit
-      // Level 8.0 = 2 digit × 3 digit or 3 × 2
-      // Level 10.0 = 3 × 3
       const mulDivDigits = L < 4 ? 1 :
-                           L < 6 ? 1.5 : // will handle specially
+                           L < 6 ? 1.5 :
                            L < 8 ? 2 :
                            L < 9 ? 2.5 :
                            3;
@@ -350,23 +344,18 @@
       return {q:`${fmt(a)} − ${fmt(b)}`, a:a-b, kind:'-'};
     }
     function buildMul(digits){
-      // Handle fractional digits
       if(digits < 2){
-        // Level 1.0-3.9: single digit × single digit
         const x=rnd(2,9), y=rnd(2,9);
         return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
       } else if(digits < 2.5){
-        // Level 4.0-5.9: 1 digit × 2 digit or 2 × 1
         const big=rnd(10,99), small=rnd(2,9);
         const x = Math.random()<0.5 ? big : small;
         const y = x===big ? small : big;
         return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
       } else if(digits < 3){
-        // Level 6.0-7.9: 2 digit × 2 digit (smaller range)
         const x=rnd(10,50), y=rnd(10,50);
         return {q:`${fmt(x)} × ${fmt(y)}`, a:x*y, kind:'*'};
       } else {
-        // Level 8.0+: full 2 digit or start 3 digit
         const d = Math.floor(digits);
         const low=pow10(d-1), high=pow10(d)-1;
         const x=rnd(low,high), y=rnd(low,high);
@@ -374,27 +363,22 @@
       }
     }
     function buildDiv(digits){
-      // Similar gradual progression for division
       if(digits < 2){
-        // Level 1.0-3.9: simple single digit division
         const divisor=rnd(2,9);
         const answer=rnd(2,9);
         const dividend=divisor*answer;
         return {q:`${fmt(dividend)} ÷ ${fmt(divisor)}`, a:answer, kind:'/'};
       } else if(digits < 2.5){
-        // Level 4.0-5.9: 2 digit ÷ 1 digit
         const divisor=rnd(2,9);
         const answer=rnd(2,15);
         const dividend=divisor*answer;
         return {q:`${fmt(dividend)} ÷ ${fmt(divisor)}`, a:answer, kind:'/'};
       } else if(digits < 3){
-        // Level 6.0-7.9: larger dividends
         const divisor=rnd(5,20);
         const answer=rnd(5,20);
         const dividend=divisor*answer;
         return {q:`${fmt(dividend)} ÷ ${fmt(divisor)}`, a:answer, kind:'/'};
       } else {
-        // Level 8.0+: full range
         const d = Math.floor(digits);
         const low=d===1?2:pow10(d-1), high=pow10(d)-1;
         const x=rnd(low,high), y=rnd(low,high);
@@ -423,7 +407,8 @@
       timeLeft:0, timer:null, problem:null, lastStart:0,
       opsSet:new Set(['+','-','*','/']),
       isPaused:false,
-      sessionStart:0
+      sessionStart:0,
+      pendingMilestones: [] // Store milestones to show after session
     };
 
     const profile = loadProfile();
@@ -440,7 +425,7 @@
       const avgLevel = getAverageLevel();
       el('levelDisplay').textContent = avgLevel.toFixed(1);
       el('levelDesc').textContent = getLevelDescription(avgLevel);
-      const percent = ((avgLevel - 1) / 9) * 100; // 1-10 scale
+      const percent = ((avgLevel - 1) / 9) * 100;
       el('progressFill').style.width = Math.min(100, Math.max(0, percent)) + '%';
     }
 
@@ -460,8 +445,8 @@
           <div class="skill-op">${op}</div>
           <div style="flex:1">
             <div style="display:flex;justify-content:space-between;margin-bottom:.25rem">
-              <span style="font-size:.875rem">${labels[op]}</span>
-              <span style="font-size:.75rem;color:#a3a3a3">Lvl ${opLevel.toFixed(1)}</span>
+              <span style="font-size:.875rem;color:#fafafa">${labels[op]}</span>
+              <span class="skill-level">Lvl ${opLevel.toFixed(1)}</span>
             </div>
             <div class="skill-bar"><div class="skill-bar-fill" style="width:${acc}%"></div></div>
           </div>
@@ -477,7 +462,7 @@
       
       const list = el('mistakeBankList');
       if(count === 0){
-        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✓</div><div>No mistakes yet - great job!</div></div>';
+        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✓</div><div>No mistakes yet</div></div>';
       } else {
         list.innerHTML = '';
         profile.mistakeBank.slice(0, 10).forEach((m, i) => {
@@ -510,8 +495,12 @@
       renderHistory();
     }
 
-    // ---------- milestone celebrations ----------
-    function checkMilestones(){
+    // ---------- milestone handling (only after session) ----------
+    function queueMilestone(level){
+      state.pendingMilestones.push(level);
+    }
+
+    function checkAndQueueMilestones(){
       const avgLevel = getAverageLevel();
       const milestones = [1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10];
       
@@ -519,39 +508,43 @@
         const key = 'lvl_' + m;
         if(avgLevel >= m && !profile.milestones[key]){
           profile.milestones[key] = true;
-          showMilestone(m);
+          queueMilestone(m);
         }
       });
+      saveProfile(profile);
     }
 
-    function showMilestone(level){
-      const overlay = document.createElement('div');
-      overlay.className = 'overlay';
+    function showPendingMilestones(){
+      if(state.pendingMilestones.length === 0) return;
       
-      const milestone = document.createElement('div');
-      milestone.className = 'milestone';
+      const container = el('milestoneContainer');
+      const level = state.pendingMilestones.shift();
       
       const emojis = {1.5:'⭐',2:'🌟',3:'⚡',4:'🔥',5:'🎯',6:'💪',7:'🚀',8:'👑',9:'💎',10:'🏆'};
       const titles = {1.5:'Getting Started!',2:'Rising Star!',3:'Getting Better!',4:'Solid Progress!',
                       5:'Halfway There!',6:'Strong Skills!',7:'Advanced Level!',8:'Expert Status!',
-                      9:'Nearly Perfect!',10:'MASTER ACHIEVED!'};
+                      9:'Nearly Perfect!',10:'Master Achieved!'};
       
-      milestone.innerHTML = `
-        <div class="milestone-emoji">${emojis[level] || '⭐'}</div>
-        <div class="milestone-title">${titles[level] || 'Level Up!'}</div>
-        <div class="muted">You've reached Level ${level}!</div>
-        <button class="btn primary" style="margin-top:1rem" onclick="this.parentElement.parentElement.remove();this.parentElement.remove()">Continue</button>
+      container.innerHTML = `
+        <div class="overlay" id="milestoneOverlay"></div>
+        <div class="milestone">
+          <div class="milestone-emoji">${emojis[level] || '⭐'}</div>
+          <div class="milestone-title">${titles[level] || 'Level Up!'}</div>
+          <div class="milestone-desc">You've reached Level ${level}</div>
+          <button class="btn primary" id="milestoneOk">OK</button>
+        </div>
       `;
       
-      document.body.appendChild(overlay);
-      document.body.appendChild(milestone);
+      const closeModal = () => {
+        container.innerHTML = '';
+        // Show next milestone if any
+        if(state.pendingMilestones.length > 0){
+          setTimeout(showPendingMilestones, 200);
+        }
+      };
       
-      setTimeout(() => {
-        overlay.addEventListener('click', () => {
-          overlay.remove();
-          milestone.remove();
-        });
-      }, 100);
+      el('milestoneOk').addEventListener('click', closeModal);
+      el('milestoneOverlay').addEventListener('click', closeModal);
     }
 
     // ---------- pause functionality ----------
@@ -559,7 +552,6 @@
     
     function togglePause(){
       if(state.isPaused){
-        // Resume
         state.isPaused = false;
         el('pauseBtn').textContent = 'Pause';
         if(pauseOverlay){
@@ -568,7 +560,6 @@
         }
         el('answerInput').focus();
       } else {
-        // Pause
         state.isPaused = true;
         el('pauseBtn').textContent = 'Resume';
         
@@ -577,7 +568,7 @@
         pauseOverlay.innerHTML = `
           <div class="pause-box">
             <div class="pause-title">⏸️ Paused</div>
-            <p class="muted" style="margin-bottom:1rem">Take your time - timer is stopped</p>
+            <p class="muted" style="margin-bottom:1rem">Timer is stopped</p>
             <button class="btn primary" id="resumeFromOverlay">Resume</button>
           </div>
         `;
@@ -683,7 +674,7 @@
     function renderHistory(){
       const rows = el('histRows');
       if(profile.history.length === 0){
-        rows.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div>No sessions yet - start playing to build history</div></div>';
+        rows.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div>No sessions yet</div></div>';
         return;
       }
       
@@ -694,7 +685,6 @@
         const dt = new Date(h.dateISO);
         const dateStr = dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
         
-        // Mobile-friendly layout
         div.innerHTML = `
           <div><span class="hist-mobile-label">Date:</span>${dateStr}</div>
           <div><span class="hist-mobile-label">Q:</span>${h.answered}</div>
@@ -710,7 +700,6 @@
 
     // ---------- session management ----------
     function startSession(){
-      // Validation
       if(state.mode === 'review' && profile.mistakeBank.length === 0){
         alert('No mistakes to review! Complete a session in Adaptive or Manual mode first.');
         return;
@@ -723,6 +712,7 @@
       state.timeLeft = state.durationSec;
       state.sessionStart = Date.now();
       state.isPaused = false;
+      state.pendingMilestones = []; // Clear any pending milestones
 
       el('setup').classList.add('hidden');
       el('done').classList.add('hidden');
@@ -756,21 +746,17 @@
       el('play').classList.add('hidden');
       el('done').classList.remove('hidden');
 
-      // Calculate stats
       const elapsed = Math.floor((Date.now()-state.sessionStart)/1000);
       const accPct = state.tries? Math.round(100*state.correct/state.tries) : 0;
 
-      // Update lifetime
       profile.lifetime.answered += state.tries;
       profile.lifetime.correct += state.correct;
       profile.lifetime.totalTime += elapsed;
       profile.lifetime.sessions += 1;
       profile.lifetime.bestStreak = Math.max(profile.lifetime.bestStreak||0, state.best);
 
-      // Get average level for history
       const avgLevel = getAverageLevel();
 
-      // Add to history
       profile.history.unshift({
         dateISO:new Date().toISOString(),
         answered:state.tries,
@@ -781,18 +767,17 @@
         level: Number(avgLevel.toFixed(1))
       });
 
-      // Note: Level adjustments happen per-question now, not at end of session
+      // Check for milestones AFTER session ends
+      checkAndQueueMilestones();
       
       saveProfile(profile);
       refreshLifetime();
 
-      // Display summary
       el('sumQ').textContent = state.idx;
       el('sumCorrect').textContent = state.correct;
       el('sumAcc').textContent = accPct+ '%';
       el('sumTime').textContent = clock(elapsed);
 
-      // Render mistakes
       const list=el('mistList'); 
       list.innerHTML='';
       if(stateMistakes.length===0){ 
@@ -813,6 +798,9 @@
           list.appendChild(li); 
         });
       }
+
+      // Show milestones after a brief delay
+      setTimeout(showPendingMilestones, 500);
     }
 
     // ---------- problem logic ----------
@@ -823,7 +811,7 @@
       const weights = ops.map(op=>{
         const s=profile.skills[op];
         const acc = s.ans? s.cor/s.ans : 0.5;
-        return 1.2 - acc; // Lower accuracy = higher weight
+        return 1.2 - acc;
       });
       const sum = weights.reduce((a,b)=>a+b,0) || ops.length;
       let r=Math.random()*sum;
@@ -841,7 +829,6 @@
         p = {q:m.q, a:m.a, kind:m.kind, fromBank:true};
       } else {
         const op = pickOp();
-        // Use the specific operation's level for difficulty
         const opLevel = state.mode==='manual' ? (state.manualLevel || 1.0) : profile.opLevels[op].level;
         const {addSubDigits,mulDivDigits} = levelToDigits(opLevel);
         
@@ -886,7 +873,6 @@
       
       if(!profile.mistakeBank.some(m=>m.q===p.q && m.a===p.a)){
         profile.mistakeBank.push({q:p.q, a:p.a, kind:p.kind});
-        // Keep bank under 100 items
         if(profile.mistakeBank.length > 100){
           profile.mistakeBank = profile.mistakeBank.slice(-100);
         }
@@ -898,45 +884,37 @@
       
       const opData = profile.opLevels[op];
       
-      // Add to rolling window for this operation (last 8 questions)
       opData.rolling.push({ok, ms});
       if(opData.rolling.length > 8) opData.rolling.shift();
       
       const n = opData.rolling.length;
-      if(n < 5) return; // Need at least 5 questions before adjusting
+      if(n < 5) return;
       
       const recentAcc = opData.rolling.filter(r=>r.ok).length / n;
       const avgMs = opData.rolling.reduce((a,r)=>a+r.ms,0) / n;
       
-      // Estimate target time based on current level
       const {addSubDigits,mulDivDigits} = levelToDigits(opData.level);
       const estDigits = (op==='+'||op==='-') ? addSubDigits : mulDivDigits;
-      const targetMs = 1500 + 600 * estDigits; // More time for higher levels
+      const targetMs = 1500 + 600 * estDigits;
       
       let delta = 0;
       
-      // STRICT requirements for leveling up
       if(recentAcc >= 0.90 && avgMs <= targetMs * 0.9){
-        // Excellent: fast AND very accurate
         delta = 0.15;
       } else if(recentAcc >= 0.875 && avgMs <= targetMs){
-        // Good: decent speed and high accuracy
         delta = 0.10;
       } else if(recentAcc >= 0.85 && avgMs <= targetMs * 1.1){
-        // Acceptable: slightly slower but still accurate
         delta = 0.05;
       } else if(recentAcc < 0.65 || avgMs > targetMs * 1.8){
-        // Struggling: too slow OR too many mistakes
         delta = -0.10;
       } else if(recentAcc < 0.75){
-        // Below target accuracy
         delta = -0.05;
       }
       
       if(delta !== 0){
         opData.level = clamp(opData.level + delta, 1.0, 10.0);
+        // NOTE: No checkMilestones() here - only check after session ends
         saveProfile(profile);
-        checkMilestones();
       }
     }
 
@@ -999,12 +977,10 @@
       sk.ans++; 
       if(ok) sk.cor++;
 
-      // Remove from mistake bank if answered correctly in review mode
       if(ok && state.mode==='review' && p.fromBank){
         profile.mistakeBank = profile.mistakeBank.filter(m=>!(m.q===p.q && m.a===p.a));
       }
 
-      // Adjust level for THIS specific operation
       adjustLevel(ok, ms, p.kind);
       saveProfile(profile);
       updateBars();
