@@ -701,7 +701,7 @@
     function renderHistory(){
       const rows = el('histRows');
       if(profile.history.length === 0){
-        rows.innerHTML = '<div class="empty-state"><div>No sessions yet</div></div>';
+        rows.innerHTML = '<div class="empty-state">No sessions yet</div>';
         return;
       }
       
@@ -911,36 +911,50 @@
       
       const opData = profile.opLevels[op];
       
+      // Add to rolling window (smaller window = faster response)
       opData.rolling.push({ok, ms});
-      if(opData.rolling.length > 8) opData.rolling.shift();
+      if(opData.rolling.length > 5) opData.rolling.shift();
       
       const n = opData.rolling.length;
-      if(n < 5) return;
+      if(n < 3) return; // Start adjusting after just 3 questions
       
       const recentAcc = opData.rolling.filter(r=>r.ok).length / n;
       const avgMs = opData.rolling.reduce((a,r)=>a+r.ms,0) / n;
       
+      // Target time based on difficulty
       const {addSubDigits,mulDivDigits} = levelToDigits(opData.level);
       const estDigits = (op==='+'||op==='-') ? addSubDigits : mulDivDigits;
-      const targetMs = 1500 + 600 * estDigits;
+      const targetMs = 2000 + 800 * estDigits;
       
       let delta = 0;
       
-      if(recentAcc >= 0.90 && avgMs <= targetMs * 0.9){
+      // More balanced thresholds - easier to go down when struggling
+      if(recentAcc >= 0.90 && avgMs <= targetMs * 0.8){
+        // Excellent: very accurate AND fast
         delta = 0.15;
-      } else if(recentAcc >= 0.875 && avgMs <= targetMs){
+      } else if(recentAcc >= 0.85 && avgMs <= targetMs){
+        // Good: accurate and reasonable speed
         delta = 0.10;
-      } else if(recentAcc >= 0.85 && avgMs <= targetMs * 1.1){
+      } else if(recentAcc >= 0.80 && avgMs <= targetMs * 1.2){
+        // Decent: mostly correct
         delta = 0.05;
-      } else if(recentAcc < 0.65 || avgMs > targetMs * 1.8){
-        delta = -0.10;
+      } else if(recentAcc < 0.50){
+        // Really struggling: less than half correct
+        delta = -0.20;
+      } else if(recentAcc < 0.65){
+        // Struggling: need easier problems
+        delta = -0.15;
       } else if(recentAcc < 0.75){
+        // Below target: slightly easier
+        delta = -0.10;
+      } else if(avgMs > targetMs * 2){
+        // Too slow even if accurate: slightly easier
         delta = -0.05;
       }
+      // If 75-80% accuracy and reasonable time: stay at current level (delta = 0)
       
       if(delta !== 0){
         opData.level = clamp(opData.level + delta, 1.0, 10.0);
-        // NOTE: No checkMilestones() here - only check after session ends
         saveProfile(profile);
       }
     }
